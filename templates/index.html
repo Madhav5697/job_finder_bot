@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JobBot - Search Jobs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .form-select-translucent {
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">JobBot</h1>
+
+        {% if error %}
+        <div class="alert alert-danger text-center">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/results" class="mx-auto" style="max-width: 500px;">
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="location" placeholder="e.g. India" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="experience" class="form-label">Years of Experience</label>
+                <input type="number" class="form-control" id="experience" name="experience" placeholder="e.g. 3" min="0" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="skills" class="form-label">Skills / Job Type</label>
+                <input type="text" class="form-control" id="skills" name="skills" placeholder="e.g. Python Developer" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="posted_within" class="form-label">Posted On</label>
+                <select class="form-select form-select-sm form-select-translucent" id="posted_within" name="posted_within">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="3days">Last 3 Days</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="2weeks">Last 2 Weeks</option>
+                    <option value="3weeks">Last 3 Weeks</option>
+                    <option value="month">Last 30 Days</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Search Jobs</button>
+        </form>
+    </div>
+</body>
+</html>
