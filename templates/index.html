@@ -16,11 +16,8 @@
     <div class="container py-5">
         <h1 class="mb-4 text-center">JobBot</h1>
 
-        {% if error %}
-        <div class="alert alert-danger text-center">{{ error }}</div>
-        {% endif %}
-
-        <form method="POST" action="/results" class="mx-auto" style="max-width: 500px;">
+        <!-- Form without action -->
+        <form id="jobForm" class="mx-auto" style="max-width: 500px;">
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
                 <input type="text" class="form-control" id="location" name="location" placeholder="e.g. India" required />
@@ -51,6 +48,69 @@
 
             <button type="submit" class="btn btn-primary w-100">Search Jobs</button>
         </form>
+
+        <!-- Area to display results -->
+        <div id="results" class="mt-4"></div>
     </div>
+
+    <script>
+    document.getElementById('jobForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const location = document.getElementById('location').value;
+        const experience = parseInt(document.getElementById('experience').value);
+        const skills = document.getElementById('skills').value;
+        const posted_within = document.getElementById('posted_within').value;
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = `<div class="text-center">Loading jobs...</div>`;
+
+        try {
+            const response = await fetch('https://job-finder-bot-044c.onrender.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    location,
+                    experience,
+                    skills,
+                    posted_within
+                })
+            });
+
+            const data = await response.json();
+
+            resultsDiv.innerHTML = ''; // Clear loading
+
+            if (data.error) {
+                resultsDiv.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                return;
+            }
+
+            if (data.jobs && data.jobs.length > 0) {
+                data.jobs.forEach(job => {
+                    resultsDiv.innerHTML += `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">${job.job_title || 'N/A'}</h5>
+                                <p class="card-text"><strong>Company:</strong> ${job.employer_name || 'N/A'}</p>
+                                <p class="card-text"><strong>Location:</strong> ${job.job_city || 'N/A'}, ${job.job_country || ''}</p>
+                                <p class="card-text"><strong>Posted On:</strong> ${job.posted_date || 'N/A'}</p>
+                                <p class="card-text">${job.short_description || ''}</p>
+                                <a href="${job.job_apply_link}" class="btn btn-sm btn-primary" target="_blank" rel="noopener noreferrer">Apply</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                resultsDiv.innerHTML = `<div class="alert alert-info">No jobs found.</div>`;
+            }
+        } catch (error) {
+            resultsDiv.innerHTML = `<div class="alert alert-danger">Failed to fetch jobs. Please try again later.</div>`;
+            console.error(error);
+        }
+    });
+    </script>
 </body>
 </html>
