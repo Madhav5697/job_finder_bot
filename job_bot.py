@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import requests
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-# RapidAPI credentials
 API_KEY = "9a33f6c173mshf4a614942354e3ep123b33jsn4270933aae39"
 API_HOST = "jsearch.p.rapidapi.com"
 
-# Function to fetch jobs from RapidAPI
 def fetch_jobs(location, experience, skills, posted_within):
     url = "https://jsearch.p.rapidapi.com/search"
     query = f"{skills} jobs in {location} with {experience} years experience"
@@ -28,12 +28,15 @@ def fetch_jobs(location, experience, skills, posted_within):
     }
 
     response = requests.get(url, headers=headers, params=params)
+    print(f"API Status: {response.status_code}")
+    print(f"API Response (truncated): {response.text[:500]}")
 
     if response.status_code == 200:
         data = response.json()
         return data.get("data", [])
     else:
         return None
+
 @app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
@@ -84,6 +87,6 @@ def api_jobs():
 
     return jsonify({"jobs": jobs}), 200
 
-# Run the app
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
